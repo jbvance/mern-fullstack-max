@@ -14,7 +14,9 @@ const NavLinks = (props) => {
         </NavLink>
       </li>
       <li>
-        {authCtx.isLoggedIn && <NavLink to="/u1/places">My Places</NavLink>}
+        {authCtx.isLoggedIn && (
+          <NavLink to={`/${authCtx.userId}/places`}>My Places</NavLink>
+        )}
       </li>
       <li>
         {authCtx.isLoggedIn && <NavLink to="/places/new">Add Place</NavLink>}

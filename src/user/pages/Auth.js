@@ -10,7 +10,7 @@ import LoadingSpinner from '../../shared/components/UIElements/LoadingSpinner';
 import {
   VALIDATOR_EMAIL,
   VALIDATOR_MINLENGTH,
-  VALIDATOR_REQUIRE,
+  VALIDATOR_REQUIRE
 } from '../../shared/util/validators';
 import './Auth.css';
 
@@ -22,12 +22,12 @@ const Auth = () => {
   const [formState, inputHandler, setFormData] = useForm({
     email: {
       value: '',
-      isValid: false,
+      isValid: false
     },
     password: {
       value: '',
-      isValid: false,
-    },
+      isValid: false
+    }
   });
 
   const switchModeHandler = () => {
@@ -35,7 +35,7 @@ const Auth = () => {
       setFormData(
         {
           ...formState.inputs,
-          name: undefined,
+          name: undefined
         },
         formState.inputs.email.isValid && formState.inputs.password.isValid
       );
@@ -45,8 +45,8 @@ const Auth = () => {
           ...formState.inputs,
           name: {
             value: '',
-            isValid: false,
-          },
+            isValid: false
+          }
         },
         false
       );
@@ -58,37 +58,37 @@ const Auth = () => {
     event.preventDefault();
     if (isLoginMode) {
       try {
-        await sendRequest(
+        const responseData = await sendRequest(
           `${process.env.REACT_APP_API_URL}/api/users/login`,
           'POST',
           JSON.stringify({
             email: formState.inputs.email.value,
-            password: formState.inputs.password.value,
+            password: formState.inputs.password.value
           }),
 
           { 'Content-Type': 'application/json' }
         );
-        authCtx.login();
+        authCtx.login(responseData.user.id);
       } catch (err) {
         // no need to handle error here, it is being set in useHttpClient hook
         console.log(err);
       }
     } else {
       try {
-        await sendRequest(
+        const responseData = await sendRequest(
           `${process.env.REACT_APP_API_URL}/api/users/signup`,
           'POST',
           JSON.stringify({
             name: formState.inputs.name.value,
             email: formState.inputs.email.value,
-            password: formState.inputs.password.value,
+            password: formState.inputs.password.value
           }),
           {
-            'Content-Type': 'application/json',
+            'Content-Type': 'application/json'
           }
         );
 
-        authCtx.login();
+        authCtx.login(responseData.user.id);
       } catch (err) {
         console.log(err);
       }
@@ -127,8 +127,8 @@ const Auth = () => {
             type="password"
             id="password"
             label="Password"
-            validators={[VALIDATOR_MINLENGTH(5)]}
-            errorText="Please enter a valid password (at least 5 characters)"
+            validators={[VALIDATOR_MINLENGTH(6)]}
+            errorText="Please enter a valid password (at least 6 characters)"
             onInput={inputHandler}
           />
           <Button type="submit" disabled={!formState.isValid}>

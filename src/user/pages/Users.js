@@ -15,7 +15,7 @@ const Users = () => {
           `${process.env.REACT_APP_API_URL}/api/users`,
           'GET'
         );
-
+        console.log(responseData);
         setLoadedUsers(responseData.users);
       } catch (err) {
         // error handled in useHttpClient hook

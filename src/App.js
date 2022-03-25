@@ -3,7 +3,7 @@ import {
   BrowserRouter as Router,
   Route,
   Redirect,
-  Switch,
+  Switch
 } from 'react-router-dom';
 import NewPlace from './places/pages/NewPlace';
 import Users from './user/pages/Users';
@@ -15,11 +15,16 @@ import { AuthContext } from './shared/context/auth-context';
 
 const App = () => {
   const [isLoggedIn, setIsLoggedIn] = useState(false);
-  const login = useCallback(() => {
+  const [userId, setUserId] = useState(null);
+
+  const login = useCallback((uid) => {
     setIsLoggedIn(true);
+    setUserId(uid);
   }, []);
-  const logout = useCallback(() => {
+
+  const logout = useCallback((userId) => {
     setIsLoggedIn(false);
+    setUserId(null);
   }, []);
 
   let routes;
@@ -60,7 +65,12 @@ const App = () => {
 
   return (
     <AuthContext.Provider
-      value={{ isLoggedIn: isLoggedIn, login: login, logout: logout }}
+      value={{
+        isLoggedIn: isLoggedIn,
+        userId: userId,
+        login: login,
+        logout: logout
+      }}
     >
       <Router>
         <MainNavigation />
