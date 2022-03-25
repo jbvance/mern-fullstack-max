@@ -4,6 +4,7 @@ import Input from '../../shared/components/FormElements/Input';
 import Card from '../../shared/components/UIElements/Card';
 import { AuthContext } from '../../shared/context/auth-context';
 import { useForm } from '../../shared/hooks/form-hook';
+import { useHttpClient } from '../../shared/hooks/http-hook';
 import ErrorModal from '../../shared/components/UIElements/ErrorModal';
 import LoadingSpinner from '../../shared/components/UIElements/LoadingSpinner';
 import {
@@ -16,8 +17,7 @@ import './Auth.css';
 const Auth = () => {
   const authCtx = useContext(AuthContext);
   const [isLoginMode, setIsLoginMode] = useState(true);
-  const [isLoading, setIsLoading] = useState(false);
-  const [error, setError] = useState(null);
+  const { isLoading, error, sendRequest, clearError } = useHttpClient();
 
   const [formState, inputHandler, setFormData] = useForm({
     email: {
@@ -56,70 +56,48 @@ const Auth = () => {
 
   const authSubmitHandler = async (event) => {
     event.preventDefault();
-    setIsLoading(true);
     if (isLoginMode) {
       try {
-        const response = await fetch(
+        await sendRequest(
           `${process.env.REACT_APP_API_URL}/api/users/login`,
-          {
-            method: 'POST',
-            headers: {
-              'Content-Type': 'application/json',
-            },
-            body: JSON.stringify({
-              email: formState.inputs.email.value,
-              password: formState.inputs.password.value,
-            }),
-          }
+          'POST',
+          JSON.stringify({
+            email: formState.inputs.email.value,
+            password: formState.inputs.password.value,
+          }),
+
+          { 'Content-Type': 'application/json' }
         );
-        const responseData = await response.json();
-        if (!response.ok) {
-          throw new Error(responseData.message);
-        }
-        setIsLoading(false);
         authCtx.login();
       } catch (err) {
+        // no need to handle error here, it is being set in useHttpClient hook
         console.log(err);
-        setIsLoading(false);
-        setError(err.message || 'Something went wrong, please try again.');
       }
     } else {
       try {
-        const response = await fetch(
+        await sendRequest(
           `${process.env.REACT_APP_API_URL}/api/users/signup`,
+          'POST',
+          JSON.stringify({
+            name: formState.inputs.name.value,
+            email: formState.inputs.email.value,
+            password: formState.inputs.password.value,
+          }),
           {
-            method: 'POST',
-            headers: {
-              'Content-Type': 'application/json',
-            },
-            body: JSON.stringify({
-              name: formState.inputs.name.value,
-              email: formState.inputs.email.value,
-              password: formState.inputs.password.value,
-            }),
+            'Content-Type': 'application/json',
           }
         );
-        const responseData = await response.json();
-        if (!response.ok) {
-          throw new Error(responseData.message);
-        }
-        setIsLoading(false);
+
         authCtx.login();
       } catch (err) {
         console.log(err);
-        setIsLoading(false);
-        setError(err.message || 'Something went wrong, please try again.');
       }
     }
   };
 
-  const errorHandler = () => {
-    setError(null);
-  };
-
   return (
     <Fragment>
-      <ErrorModal error={error} onClear={errorHandler} />
+      <ErrorModal error={error} onClear={clearError} />
       <Card className="authentication">
         {isLoading && <LoadingSpinner asOverlay />}
         <h2> Login</h2>
